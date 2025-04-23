@@ -1,4 +1,4 @@
-package models
+package model
 
 type AuthResponse struct {
 	Data struct {

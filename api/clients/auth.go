@@ -1,4 +1,4 @@
-package api
+package clients
 
 import (
 	"bytes"
@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/hayrat/ezan-vakti/internal/models"
+	"github.com/hayrat/ezan-vakti/common/model"
 )
 
-func Login(apiUrl, email, password string) (models.AuthResponse, error) {
+func Login(apiUrl, email, password string) (model.AuthResponse, error) {
 	loginUrl := fmt.Sprintf("%s/Auth/Login", apiUrl)
 
 	reqBody, _ := json.Marshal(map[string]string{
@@ -19,7 +19,7 @@ func Login(apiUrl, email, password string) (models.AuthResponse, error) {
 
 	resp, err := http.Post(loginUrl, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
-		return models.AuthResponse{}, err
+		return model.AuthResponse{}, err
 	}
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
@@ -27,10 +27,10 @@ func Login(apiUrl, email, password string) (models.AuthResponse, error) {
 		}
 	}()
 
-	var authResp models.AuthResponse
+	var authResp model.AuthResponse
 	err = json.NewDecoder(resp.Body).Decode(&authResp)
 	if err != nil {
-		return models.AuthResponse{}, err
+		return model.AuthResponse{}, err
 	}
 
 	return authResp, nil
