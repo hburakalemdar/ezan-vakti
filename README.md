@@ -16,8 +16,6 @@ Bu proje, Diyanet İşleri Başkanlığı'nın resmi ***Awqat Salah*** REST API'
   - [Uygulamayı Çalıştırma](#uygulamayı-çalıştırma)
 - [Veritabanı Şeması](#veritabanı-şeması)
 - [Veri Senkronizasyon Akışı](#veri-senkronizasyon-akışı)
-- [Katkıda Bulunma](#katkıda-bulunma)
-- [Lisans](#lisans)
 
 ---
 
@@ -167,16 +165,5 @@ erDiagram
 3. **Bulk Insert** → `common/service.PlaceService.SaveLocationsToDB` aynı kayıt varsa `ON CONFLICT` ile günceller.
 4. **Prayer Times** → Her şehir için `/PrayerTime/Monthly/{cityId}` çağrılır ve sonuçlar `prayer_times` tablosuna eklenir.
 5. Tüm işlemler bittiğinde bir sonraki döngüye kadar beklenir.
-
----
-
-## Katkıda Bulunma
-
-Pull-request'lere ve issue'lara açıktır. Lütfen büyük değişiklikler öncesinde **issue** açıp tartışalım.
-
-1. Fork ➜ Clone ➜ Branch (`git checkout -b feature/foo`)
-2. Değişiklik yap & test et
-3. `go vet ./... && go test ./...` çıktılarının temiz olduğundan emin ol
-4. PR gönder ✨
 
 ---
