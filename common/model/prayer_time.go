@@ -28,6 +28,4 @@ type PrayerTime struct {
 	GregorianDateLong         string  `json:"gregorianDateLong"`
 	GregorianDateLongIso8601  string  `json:"gregorianDateLongIso8601"`
 	GreenwichMeanTimeZone     int     `json:"greenwichMeanTimeZone"`
-
-	City *City `bun:"rel:belongs-to,join:city_id=id"`
 }

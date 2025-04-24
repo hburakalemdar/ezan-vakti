@@ -24,7 +24,6 @@ type PrayerTimeResponse struct {
 	CityID                    int64   `json:"city_id"`
 }
 
-// ToDBModel implements DBConvertible and converts to model.PrayerTime
 func (vm *PrayerTimeResponse) ToDBModel() any {
 	return &model.PrayerTime{
 		Fajr:                      vm.Fajr,

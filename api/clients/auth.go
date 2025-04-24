@@ -4,34 +4,38 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"net/http"
+	"log"
 
 	"github.com/hayrat/ezan-vakti/common/model"
 )
 
 func Login(apiUrl, email, password string) (model.AuthResponse, error) {
-	loginUrl := fmt.Sprintf("%s/Auth/Login", apiUrl)
+	loginUrl := BuildURL(apiUrl, "/Auth/Login")
 
-	reqBody, _ := json.Marshal(map[string]string{
+	requestData := map[string]string{
 		"email":    email,
 		"password": password,
-	})
+	}
 
-	resp, err := http.Post(loginUrl, "application/json", bytes.NewBuffer(reqBody))
+	jsonData, err := json.Marshal(requestData)
+	if err != nil {
+		return model.AuthResponse{}, fmt.Errorf("JSON'a dönüştürme hatası: %v", err)
+	}
+
+	respBody, err := MakeAPIRequest("POST", loginUrl, "", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return model.AuthResponse{}, err
 	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			fmt.Println("Hata: Response body kapatılırken sorun oluştu:", err)
-		}
-	}()
 
 	var authResp model.AuthResponse
-	err = json.NewDecoder(resp.Body).Decode(&authResp)
-	if err != nil {
-		return model.AuthResponse{}, err
+	if err := json.Unmarshal(respBody, &authResp); err != nil {
+		return model.AuthResponse{}, fmt.Errorf("yanıt ayrıştırma hatası: %v", err)
 	}
 
+	if !authResp.Success {
+		return authResp, fmt.Errorf("giriş başarısız: %s", authResp.Message)
+	}
+
+	log.Printf("Giriş başarılı")
 	return authResp, nil
 }

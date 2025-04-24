@@ -4,22 +4,22 @@ import (
 	"errors"
 
 	"github.com/hayrat/ezan-vakti/api/clients"
-	"github.com/hayrat/ezan-vakti/config"
+	"github.com/hayrat/ezan-vakti/pkg"
 )
 
 type AuthService struct {
-	Config      config.AppConfig
+	Config      pkg.ApiConfig
 	AccessToken string
 }
 
-func NewAuthService(cfg config.AppConfig) *AuthService {
+func NewAuthService(cfg pkg.ApiConfig) *AuthService {
 	return &AuthService{
 		Config: cfg,
 	}
 }
 
 func (a *AuthService) Authenticate() error {
-	authResp, err := clients.Login(a.Config.ApiBaseUrl, a.Config.Email, a.Config.Password)
+	authResp, err := clients.Login(a.Config.BaseUrl, a.Config.Email, a.Config.Password)
 	if err != nil || !authResp.Success {
 		return errors.New("authentication failed")
 	}
