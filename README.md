@@ -1,6 +1,6 @@
 # Ezan Vakti (Prayer Times) Projesi
 
-Bu proje, Diyanet İşleri Başkanlığı'nın resmi ***Awqat Salah*** REST API'sini kullanarak dünya genelindeki ülke → eyalet/il → şehir/ilçe hiyerarşisini ve bu şehirlerin namaz vakitlerini (günlük, haftalık, aylık, yıllık, Ramazan, bayram vb.) periyodik olarak indirir ve yerel bir PostgreSQL veritabanına kaydeder.
+Bu proje, Diyanet İşleri Başkanlığı'nın resmi ***Awqat Salah*** REST API'sini kullanarak dünya genelindeki ülke → eyalet/il → şehir/ilçe hiyerarşisini ve bu şehirlerin namaz vakitlerini aylık periyodik olarak indirir ve yerel bir PostgreSQL veritabanına kaydeder.
 
 > **Hedef:** Veritabanına indirilen verilerin daha sonra başka servisler/uygulamalar tarafından kolayca tüketilebilmesi için tek kaynak (**single-source**) hâline getirilmesi.
 
@@ -10,10 +10,8 @@ Bu proje, Diyanet İşleri Başkanlığı'nın resmi ***Awqat Salah*** REST API'
 
 - [Teknolojiler](#teknolojiler)
 - [Mimari](#mimari)
-- [Kurulum](#kurulum)
   - [Önkoşullar](#önkoşullar)
   - [Env Değişkenleri](#env-değişkenleri)
-  - [Uygulamayı Çalıştırma](#uygulamayı-çalıştırma)
 - [Veritabanı Şeması](#veritabanı-şeması)
 - [Veri Senkronizasyon Akışı](#veri-senkronizasyon-akışı)
 
@@ -27,7 +25,6 @@ Bu proje, Diyanet İşleri Başkanlığı'nın resmi ***Awqat Salah*** REST API'
 | **Bun ORM**| PostgreSQL erişimi ve şema yönetimi               |
 | **PostgreSQL** | Kalıcı veri saklama                           |
 | **Viper**  | Konfigürasyon yönetimi (env + varsayılanlar)      |
-| **godotenv** | `.env` dosyasından değişken okuma (opsiyonel)   |
 | **Awqatsalah REST API** | Veri kaynağı                          |
 
 > Proje Go **1.23** ile test edilmiştir. Farklı sürümlerde derleme hataları yaşayabilirsiniz.
@@ -38,20 +35,20 @@ Bu proje, Diyanet İşleri Başkanlığı'nın resmi ***Awqat Salah*** REST API'
 
 ```
 ┌────────────────────┐   1. Auth/Login   ┌────────────────────┐
-│  api/clients       ├───────────────►   │  Diyanet API       │
-│  (HTTP katmanı)    │                  │  (awqatsalah)      │
-└────────┬───────────┘                  └────────┬───────────┘
-         │ 2. /Place/* , /PrayerTime/*           │
-┌────────▼───────────┐                          │
-│ common/service     │  ←──── JSON              │
-│ İş kuralları       │                          │
-└────────┬───────────┘                          │
-         │ bun.DB (SQL)        3. INSERT        │
-┌────────▼───────────┐                          │
-│ PostgreSQL         │                          │
-│ (locations,        │                          │
-│  prayer_times)     │                          │
-└────────────────────┘                          │
+│  api/clients       ├───────────────►   │    Diyanet API     │
+│  (HTTP katmanı)    │                   │    (awqatsalah)    │
+└────────┬───────────┘                   └────────┬───────────┘
+         │      2. /Place/* , /PrayerTime/*       │
+┌────────▼───────────┐                            │
+│ common/service     │  ←──── JSON                │
+│ İş kuralları       │                            │
+└────────┬───────────┘                            │
+         │               3. INSERT                │
+┌────────▼───────────┐                            │
+│ PostgreSQL         │                            │
+│ (locations,        │                            │
+│  prayer_times)     │                            │
+└────────────────────┘                            │
 ```
 
 - **api/clients**: API endpoint çağrılarını yapan düşük seviyeli HTTP katmanı.
@@ -60,8 +57,6 @@ Bu proje, Diyanet İşleri Başkanlığı'nın resmi ***Awqat Salah*** REST API'
 - **api/cmd**: Çalıştırılabilir uygulama (`main.go`). Burada periyodik senkronizasyon tetiklenir.
 
 ---
-
-## Kurulum
 
 ### Önkoşullar
 
@@ -84,32 +79,6 @@ Uygulama Viper ile aşağıdaki değişkenleri okur. `.env` dosyası oluşturabi
 | `DB_PASSWORD`       | Veritabanı parolası                     | `burakalemdar` |
 | `DB_SSLMODE`        | `disable`, `require`, vs.               | `disable` |
 | `UPDATE_PERIOD`     | Senkronizasyon periyodu (saat, gün vb.) | `696h` (≈29 gün) |
-
-### Uygulamayı Çalıştırma
-
-1. Depoyu klonlayın:
-   ```bash
-   git clone https://github.com/hayrat/ezan-vakti.git && cd ezan-vakti
-   ```
-2. Bağımlılıkları indirin:
-   ```bash
-   go mod tidy
-   ```
-3. Veritabanını oluşturun (PG tarafında):
-   ```bash
-   createdb ezanvakti  # veya başka bir isim
-   ```
-4. Ortam değişkenlerinizi ayarlayın (örnek linux/macOS):
-   ```bash
-   export DB_USERNAME=postgres
-   export DB_PASSWORD=postgres
-   # ... diğerleri
-   ```
-5. Uygulamayı başlatın:
-   ```bash
-   # Çalıştırılabilir dizin api/cmd'dir
-   go run ./api/cmd
-   ```
 
 Uygulama başlatıldığında:
 
